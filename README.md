@@ -7,13 +7,13 @@ Disclaimer: Currently does not work on Windows. Blame Microsoft :)
 dotmanager init <dir> # create a new dotfile repository in the supplied directory (or current working dir). (creates a git directory with a standard config file inside)
 dotmanager init <dir> --no-git # only create standard config file, no git repository will be created
 
-dotmanager apply <dir> # create symlinks from files in the current dotfile repository to their configured location in your filesystem
-dotmanager apply --force # if files already exist in the target repository they will 
+dotmanager apply <dir> # create symlinks from files in the current dotfile repository to their configured location in your filesystem (<dir> by default without any further configuration)
+dotmanager apply --force # if files already exist in the target repository will be overwritten
+dotmanager apply --dry-run # Instead of applying the dotfiles, just log where they would go.
+dotmanager apply --copy-files # copy files instead of symlinking
 
-dotmanager copy-apply <dir> # same as apply, except it will create a copy of the file instead of a symlink. skip already symlinked files or existing files
-dotmanager copy-apply --replace-symlinks # replace symlinks that might already exist with a copy
-dotmanager copy-apply --replace-existing # also replace existing files
-dotmanager collect # collects all files that arent already in the repository
+dotmanager collect # collects all files that match the file rules that arent already in the repository
+dotmanager collect --force # forcefully collects all files that match the rules and overwrites existing files in the repository
 
 ```
 ### Configuration

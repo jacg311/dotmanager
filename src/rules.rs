@@ -1,45 +1,36 @@
 use std::path::PathBuf;
 
-pub enum RuleType {
-    Directory,
-    Pattern(String),
-}
+use glob::{MatchOptions, Pattern};
 
-pub struct Rule {
-    rule_type: RuleType,
-    target_path: PathBuf,
+pub enum Rule {
+    Directory(PathBuf),        // global target
+    Pattern(Pattern, PathBuf), // symlink files that match the pattern to the target
+    Negative(Pattern),         // do not symlink files that match the pattern
 }
 
 impl Rule {
-    fn parse(rule: String) -> Rule {
+    pub fn parse(mut rule: String) -> Option<Rule> {
+        if rule.trim().is_empty() {
+            return None
+        }
+        if rule.starts_with('!') {
+            rule.remove(0);
+            return Some(Rule::Negative(Pattern::new(rule.as_str()).unwrap()));
+        }
         let split: Vec<&str> = rule.split(':').collect();
 
         match split.len() {
-            1 => Rule {
-                rule_type: RuleType::Directory,
-                target_path: PathBuf::from(split[0]),
+            1 => Some(Rule::Directory(PathBuf::from(split[0]))),
+            2 => Some(Rule::Pattern(
+                Pattern::new(split[1]).unwrap(),
+                PathBuf::from(split[0]),
+            )),
+            _ => {
+                eprintln!("Cannot construct a rule from this string: {rule}");
+                None
             },
-            2 => Rule {
-                rule_type: RuleType::Pattern(String::from(split[1])),
-                target_path: PathBuf::from(split[0]),
-            },
-            x => panic!("Cannot construct rule from {} elements.", x),
         }
     }
 
-    fn matches(&self, file: PathBuf) -> bool {
-        match &self.rule_type {
-            RuleType::Directory => true,
-            RuleType::Pattern(pattern) => {
-                match pattern.find('*') {
-                    Some(pos) => {
-                        if pos = 0 {
-                            file.ends_with(child)
-                        }
-                    },
-                    None => file.starts_with(pattern),
-                }
-            }
-        }
-    }
+    fn apply(&self, file: PathBuf) {}
 }
